@@ -1,3 +1,4 @@
+# http://net-informations.com/python/net/thread.htm
 import socket, threading
 class ClientThread(threading.Thread):
     def __init__(self,clientAddress,clientsocket):
