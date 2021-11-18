@@ -6,4 +6,4 @@ wordfile = xp.locate_wordfile()
 mywords = xp.generate_wordlist(wordfile=wordfile, min_length=4, max_length=9)
 
 # create a password with the acrostic "face"
-print(xp.generate_xkcdpassword(mywords, acrostic="face"))
+print(xp.generate_xkcdpassword(mywords))
