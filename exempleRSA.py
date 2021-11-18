@@ -1,5 +1,6 @@
 # fichier exemple pour RSA
 # https://gist.github.com/YannBouyeron/f39893644f89dd676297cc3bc67eaedb
+# https://pycryptodome.readthedocs.io/en/latest/src/examples.html#encrypt-data-with-rsa
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
