@@ -6,4 +6,3 @@ pip install pycryptodome
 commandes utiles
 
 python -m pip
-vier4000
