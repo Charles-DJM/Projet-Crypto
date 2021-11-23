@@ -1,3 +1,4 @@
+utiliser python 3.8
 pip install tqdm
 pip install xkcdpass
 pip install pycryptodome
