@@ -63,6 +63,4 @@ while True:
     clientsock, clientAddress = server.accept()
     newthread = ClientThread(clientAddress, clientsock)
     newthread.start()
-
-    #test + test2 + test3
     
