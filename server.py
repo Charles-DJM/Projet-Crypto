@@ -5,6 +5,8 @@
 #   user>server : Reception Fichier > Sauvegarde cle AES dans 1db et fichier dans une autre
 #                 Generation xkcdkey pour recuperer fichier
 #   server>user : demande xkcdkey > envoi fichier puis cle AES utilise pour chiffrer le fichier
+# https://stackoverflow.com/questions/63819977/do-i-understand-correctly-how-to-encrypt-tcp-traffic-via-rsa-aes
+
 import socket
 import threading
 import os
