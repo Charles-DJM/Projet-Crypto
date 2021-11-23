@@ -64,5 +64,5 @@ while True:
     newthread = ClientThread(clientAddress, clientsock)
     newthread.start()
 
-    #test + test2
+    #test + test2 + test3
     
