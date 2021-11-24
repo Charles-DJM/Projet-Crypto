@@ -35,6 +35,23 @@ class ClientThread(threading.Thread):
         data = self.csocket.recv(2048)
         msg = data.decode()
         msg #https://riptutorial.com/python/example/27169/server-side-implementation
+        # Déchiffrer msg avec la clefs privé RSA
+        # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
+        # Maintenant tout doit etre chiffré et déchiffré en AES
+        # Demander au client ce qu'il veut faire : recevoir / envoyer
+            # Si envoyer:
+                # D'abord recuperer taille du fichier 
+                # Récupération du fichier
+                # Correspondance entre la clef AES et le fichier
+                # Générer une clef avec xkcdpass la correspondance au fichier puis l'envoyer au client  
+
+            # Si recevoir:
+                # On attend une clef xkcdpass 
+                # Si elle corespond :
+                    #  On envoie le fichier avec la correspondance de la clef AES
+                # Si ca correspond pas :
+                    # Vas niker TA mèreah !
+
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -46,3 +63,4 @@ while True:
     clientsock, clientAddress = server.accept()
     newthread = ClientThread(clientAddress, clientsock)
     newthread.start()
+    
