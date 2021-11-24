@@ -1,5 +1,5 @@
 import socket
-from demos.exempleRSA import Generate_RSA_PBL
+from exempleRSA import Generate_RSA_PBL
 import tqdm
 import os
 
@@ -21,15 +21,26 @@ print("[+] Connected to ", host)
 
 #recevoir une clef publique rsa
 
+client_socket, address = s.accept()
+received = client_socket.recv(BUFFER_SIZE).decode()
+#file = open('RSApublicKey.txt','a')
+#file.write(received)
+#file.close
+
+#****************************************************
+
+
 filename = input("File to Transfer : ")
 filesize = os.path.getsize(filename)
 
-#creer une clef aes  
-#la crypté en rsa via la clef publique du serveur
-#l'envoyer au serveur
-#attendre que le serveur confirme sa disponibilité
-#choix de l'utilisateur
-#l'envoyer au serveur
+
+
+#creer une clef aes  /
+#la crypté en rsa via la clef publique du serveur/
+#l'envoyer au serveur/
+#attendre que le serveur confirme sa disponibilité/
+#choix de l'utilisateur/
+#l'envoyer au serveur/
 #si on envois on doit le chiffré en aes
     #se référer a la boucle ligne 20 dans clientsender.py
     #préciser la taille du chiffrement au serveur
@@ -44,17 +55,33 @@ filesize = os.path.getsize(filename)
         #déchiffrement du fichier
     #si c pas bon zob
 
-
-s.send(f"{filename}{SEPARATOR}{filesize}".encode())
-
-
+key = get_random_bytes(16)
+cipher_rsa = PKCS1_OAEP.new(received)
+enc_session_key = cipher_rsa.encrypt(key)
+enc_session_key = str(enc_session_key)
+s.send(enc_session_key.encode())
+client_socket, address = s.accept()
 choix = input('Que voulez vous faire ?\n1-Envoyer un fichier\n2-Récupérer un fichier\n3-quit \n')
 if choix=='1':
+    s.send(choix.encode())
+    filename = input("entrer le nom du fichier à envoyer\n")
+    filesize = input("entrer la taille du fichier à envoyer\n")
+
+
+
+    s.send(f"{filename}{SEPARATOR}{filesize}".encode())
     print('Envoyer')
 if choix=='2':
+    s.send(choix.encode())
     print('Recevoir')
 else : 
     quit
 
 
-#zob
+
+#**************************************************
+
+
+
+
+
