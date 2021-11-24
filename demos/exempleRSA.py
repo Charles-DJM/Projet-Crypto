@@ -29,6 +29,11 @@ session_key = get_random_bytes(16)
 cipher_rsa = PKCS1_OAEP.new(recipient_key)
 enc_session_key = cipher_rsa.encrypt(session_key)
 
+# Decrypt msg with the private RSA key
+def Decrypt_Msg_RSA_Private_Key(data, RSAprivateKey):
+   msg = RSAprivateKey.decrypt(data)
+   msg = msg.decode('utf-8')
+
 # Encrypt the data with the AES session key
 def Encrypt_AES():
    cipher_aes = AES.new(session_key, AES.MODE_EAX)
