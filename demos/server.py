@@ -33,11 +33,24 @@ class ClientThread(threading.Thread):
         print ("Connection from : ", clientAddress)
         self.csocket.send(bytes(self.RSAPublicKey, 'UTF-8'))
         data = self.csocket.recv(2048)
-        msg = data.decode()
-        msg #https://riptutorial.com/python/example/27169/server-side-implementation
+        data = data.decode()
+
         # Déchiffrer msg avec la clefs privé RSA
+        msg = self.RSAprivateKey.decrypt(data)
+        msg = msg.decode('utf-8')
+
         # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
+        AESkey = open("aes_key.txt", "a")
+        AESkey.write(msg)
+        AESkey.close()
+
         # Maintenant tout doit etre chiffré et déchiffré en AES
+
+
+        #https://riptutorial.com/python/example/27169/server-side-implementation
+
+        
+       
         # Demander au client ce qu'il veut faire : recevoir / envoyer
             # Si envoyer:
                 # D'abord recuperer taille du fichier 
