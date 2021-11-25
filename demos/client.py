@@ -30,8 +30,7 @@ received = client_socket.recv(BUFFER_SIZE).decode()
 #****************************************************
 
 
-filename = input("File to Transfer : ")
-filesize = os.path.getsize(filename)
+
 
 
 
@@ -66,8 +65,11 @@ file_out = open("encrypted_data_new.bin", "wb")
 
 if choix=='1':
     s.send(choix.encode())
+    filename = input("File to Transfer : ")
+    filesize = os.path.getsize(filename)
     
-    
+    #chiffrer le fichier 
+    #filesize encrypt et son nom et ensuite boucle d'envois au serveur l20 serverReciever
    # open('filename','a')
     #i = 0
     #while i != BUFFER_SIZE :

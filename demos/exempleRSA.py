@@ -50,7 +50,7 @@ enc_session_key, nonce, tag, ciphertext = \
 
 # Decrypt the session key with the private RSA key
 cipher_rsa = PKCS1_OAEP.new(private_key)
-session_key = cipher_rsa.decrypt(enc_session_key)
+#session_key = cipher_rsa.decrypt(enc_session_key)
 
 # Decrypt the data with the AES session key
 def Decrypt_AES():
