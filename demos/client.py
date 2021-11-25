@@ -62,7 +62,7 @@ enc_session_key = str(enc_session_key)
 s.send(enc_session_key.encode())
 client_socket, address = s.accept()
 choix = input('Que voulez vous faire ?\n1-Envoyer un fichier\n2-Récupérer un fichier\n3-quit \n')
-file_out = open("encrypted_data.bin", "wb")
+file_out = open("encrypted_data_new.bin", "wb")
 if choix=='1':
     s.send(choix.encode())
     filename = input("entrer le nom du fichier à envoyer\n")
@@ -76,6 +76,7 @@ if choix=='1':
         while True:
             bytes_read = f.read(BUFFER_SIZE)
             Encrypt_AES(bytes_read)
+            file_out.close()
             if not bytes_read:
                 break
             s.sendall(bytes_read)
