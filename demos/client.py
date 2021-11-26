@@ -80,14 +80,24 @@ if choix=='1':
             Encrypt_AES(bytes_read)
 
             file_out.close()
-
+            filesize_enc = os.path.getsize(file_out)
             if not bytes_read:
                 break
-            s.sendall(bytes_read)
-            progress.update(len(bytes_read))
+           
+           
+            s.send(f"{file_out}{SEPARATOR}{filesize_enc}".encode())
+
+            with open(filename, "rb") as f1:
+                while True:
+                    bytes_read = f1.read(filesize_enc)
+                    if not bytes_read:
+                        break
+                    s.sendall(bytes_read)
+                    progress.update(len(bytes_read))
+            s.close()
     s.close()
 
-    s.send(f"{filename}{SEPARATOR}{filesize}".encode())
+   
     print('Envoyer')
 if choix=='2':
     s.send(choix.encode())
