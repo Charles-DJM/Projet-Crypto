@@ -8,7 +8,8 @@ from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 from exempleRSA import Encrypt_AES, Decrypt_AES
 
-
+from xkcdpass import xkcd_password as xp
+from xkcdpassExample import gen_xkcd
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096
 
@@ -40,13 +41,13 @@ received = client_socket.recv(BUFFER_SIZE).decode()
 #attendre que le serveur confirme sa disponibilité/
 #choix de l'utilisateur/
 #l'envoyer au serveur/
-#si on envois on doit le chiffré en aes
-    #se référer a la boucle ligne 20 dans clientsender.py
-    #préciser la taille du chiffrement au serveur
-    #envois du fichier
+#si on envois on doit le chiffré en aes/
+    #se référer a la boucle ligne 20 dans clientsender.py/
+    #préciser la taille du chiffrement au serveur/
+    #envois du fichier/
 #si on récupère le fichier
     #envoyer une clef xkcdpass au serveur
-    #attendre la réponse du serveur pour loa confirmation de la clef xkcdpass
+    #attendre la réponse du serveur pour la confirmation de la clef xkcdpass
     #si c ok
         #recevoir la taille et le nom du fichier
         #boucle de reception de fichier (ref serverreceiver ligne 22)
@@ -101,6 +102,9 @@ if choix=='1':
     print('Envoyer')
 if choix=='2':
     s.send(choix.encode())
+    gen_xkcd()
+    s.send(passwd.encode())
+    srv_socket = s.accept()
     print('Recevoir')
 else : 
     quit
