@@ -17,6 +17,7 @@ from Crypto.Random import get_random_bytes
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 8080
 SEPARATOR = "<SEPARATOR>"
+BUFFER_SIZE = 4096
 
 class ClientThread(threading.Thread):
 
@@ -29,7 +30,7 @@ class ClientThread(threading.Thread):
         self.csocket = clientsocket
         print ("New connection added: ", clientAddress)
 
-    def run(self):
+    def run(self, clientAddress):
         print ("Connection from : ", clientAddress)
         self.csocket.send(bytes(self.RSAPublicKey, 'UTF-8'))
         data = self.csocket.recv(2048)
@@ -40,30 +41,37 @@ class ClientThread(threading.Thread):
         msg = msg.decode('utf-8')
 
         # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
-        AESkey = open("aes_key.txt", "a")
+        AESkey = open( + "aes_key.txt", "a")
         AESkey.write(msg)
         AESkey.close()
 
         # Maintenant tout doit etre chiffré et déchiffré en AES
+        # On attend réponse du client 
+        respons = self.csocket.recv()
+
+        if respons == "1" :
+            received = self.csocket.recv(BUFFER_SIZE).decode()
+            filename, filesize = received.split(SEPARATOR)
 
 
-        #https://riptutorial.com/python/example/27169/server-side-implementation
 
-        
        
-        # Demander au client ce qu'il veut faire : recevoir / envoyer
-            # Si envoyer:
-                # D'abord recuperer taille du fichier 
-                # Récupération du fichier
-                # Correspondance entre la clef AES et le fichier
-                # Générer une clef avec xkcdpass la correspondance au fichier puis l'envoyer au client  
+# Si envoyer (client):
+    # D'abord recuperer taille du fichier 
+    # Récupération du fichier
+    # Correspondance entre la clef AES et le fichier
+    # Générer une clef avec xkcdpass la correspondance au fichier puis l'envoyer au client  
 
-            # Si recevoir:
-                # On attend une clef xkcdpass 
-                # Si elle corespond :
-                    #  On envoie le fichier avec la correspondance de la clef AES
-                # Si ca correspond pas :
-                    # Vas niker TA mèreah !
+# Si recevoir(client):
+    # On attend une clef xkcdpass 
+    # Si elle corespond :
+        #  On envoie le fichier avec la correspondance de la clef AES
+    # Si ca correspond pas :
+        # Vas niker TA mèreah !
+
+
+
+#https://riptutorial.com/python/example/27169/server-side-implementation
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
