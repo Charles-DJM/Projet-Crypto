@@ -6,7 +6,7 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Util.Padding import pad, unpad
 from base64 import b64encode, b64decode, decode
 
-
+SEPARATOR = "<SEPARATOR>"
 
 def AESFileencryption(file, key):
     with open(file, 'rb') as enc:
@@ -40,13 +40,34 @@ def AESFiledecryption(file,key):
         except(ValueError,KeyError):
             print('Decryption Error')
 
+def AESStringEncryption(string, key):
+    cipher_aes = AES.new(key, AES.MODE_EAX)
+    nonce = cipher_aes.nonce
+    ciphertext, tag = cipher_aes.encrypt_and_digest(string)
+    rstring = ciphertext + SEPARATOR.encode('UTF-8') + tag + SEPARATOR.encode('UTF-8') + nonce
+    return rstring
+
+def AESStringDecryption(string, key):
+    ciphertext, tag, nonce = string.split(SEPARATOR.encode('UTF-8'))
+    cipher = AES.new(key,AES.MODE_EAX, nonce=nonce)
+    data = cipher.decrypt_and_verify(ciphertext, tag)
+    return data 
+
 #key =  input('key')
+#key = get_random_bytes(16)
+#key = key.encode('UTF-8')
+#key = pad(key, AES.block_size)
+#filename = input("file to encrypt\n>")
+#print(filename)
+#AESFileencryption(filename, key)
+#filename = input("file to decrypt\n>")
+#AESFiledecryption('file.txt.enc', key)
 key = get_random_bytes(16)
 #key = key.encode('UTF-8')
 key = pad(key, AES.block_size)
-filename = input("file to encrypt\n>")
-print(filename)
-AESFileencryption(filename, key)
-filename = input("file to decrypt\n>")
-AESFiledecryption('file.txt.enc', key)
+ciphertext = AESStringEncryption("secretString".encode('UTF-8'), key)
+#print(ciphertext)
+#print('\n')
+plain = AESStringDecryption(ciphertext, key)
+print(plain.decode())
 
