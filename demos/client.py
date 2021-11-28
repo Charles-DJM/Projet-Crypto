@@ -11,7 +11,7 @@ from exempleRSA import Encrypt_AES, Decrypt_AES
 from xkcdpass import xkcd_password as xp
 from xkcdpassExample import gen_xkcd
 
-from AES import AESdecryption, AESencryption
+from AES import AESStringDecryption, AESdecryption, AESencryption
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096
 
@@ -88,8 +88,10 @@ if choix=='1':
             progress.update(len(bytes_read))
     #recevoir la clé xkcd
             passwd = s.recv()
-            Decrypt_AES(passwd)
-            print(passwd)
+            AESStringDecryption(passwd)
+            print("Votre mot de passe pour récupérer le fichier est " + passwd.decode())
+            s.close()
+            exit()
 if choix=='2':
     s.send(choix.encode())
     passwd = input("Entrez le mot de passe du fichier \n>")
