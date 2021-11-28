@@ -16,6 +16,8 @@ from Crypto.PublicKey import RSA
 from xkcdpass import xkcd_password as xp
 from Crypto.Random import get_random_bytes
 from demos.xkcdpassExample import gen_xkcd
+from demos.AES import AESStringDecryption
+from demos.AES import AESStringEncryption
 
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 8080
@@ -41,13 +43,13 @@ class ClientThread(threading.Thread):
         data = data.decode()
 
         # Déchiffrer msg avec la clefs privé RSA
-        msg = self.RSAprivateKey.decrypt(data)
-        msg = msg.decode('utf-8')
+        AESkey = self.RSAprivateKey.decrypt(data)
+        AESkey = AESkey.decode('utf-8')
 
         # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
-        AESkey = open(self.id + "_" + "aes_key.txt", "a")
-        AESkey.write(msg)
-        AESkey.close()
+        AESkeyfile = open(self.id + "_" + "aes_key.txt", "a")
+        AESkeyfile.write(AESkey)
+        AESkeyfile.close()
 
         # Maintenant tout doit etre chiffré et déchiffré en AES
         # On attend réponse du client 
@@ -78,14 +80,18 @@ class ClientThread(threading.Thread):
                 writer =csv.writer(filecsv)
                 writer.writerow([self.id, self.id + "_" + "aes_key.txt", filename, xkcdpass])
 
+            # Crypatge de la clé en AES
+            xkcdpassCrypted = AESStringEncryption(xkcdpass, AESkey)
             # Envoyer au client la clé
-            self.csocket.send(xkcdpass, 'UTF-8')
-
+            self.csocket.send(xkcdpassCrypted, 'UTF-8')
 
         # Le serveur envoie un fichier au client 
         elif respons == "2" :
-            # On attend une clef xkcdpass
-            xkcdpass = self.csocket.recv().decode()
+            # On attend une clef xkcdpass crypté en AES
+            xkcdpassCrypted = self.csocket.recv().decode()
+
+            # Décryptage de xkcdpass avec la clé AES
+            xkcdpass = AESStringDecryption(xkcdpassCrypted, AESkey)
 
             # Vérifier la correspondance entre la clé xkcdpass et le nom du fichier
             with open("Projet-Crypto/demos/correspondence.csv", "r") as file: 
@@ -114,7 +120,9 @@ class ClientThread(threading.Thread):
             self.csocket.close()
 
         else :
-            self.csocket.send('Error')
+            error = AESStringEncryption('Erreur de choix', AESkey)
+            self.csocket.send(error)
+            
 
 
 #https://riptutorial.com/python/example/27169/server-side-implementation
@@ -132,4 +140,3 @@ while True:
     newthread = ClientThread(clientAddress, clientsock, id)
     id = id + 1
     newthread.start()
-    
