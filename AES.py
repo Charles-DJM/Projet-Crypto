@@ -8,7 +8,7 @@ from base64 import b64encode, b64decode, decode
 
 
 
-def AESencryption(file, key):
+def AESFileencryption(file, key):
     with open(file, 'rb') as enc:
         data = enc.read()
         cipher = AES.new(key, AES.MODE_CFB)
@@ -22,7 +22,7 @@ def AESencryption(file, key):
     data.close()
 
 
-def AESdecryption(file,key):
+def AESFiledecryption(file,key):
     with open(file, 'r') as decf:
         try:
             data = decf.read()
@@ -46,7 +46,7 @@ key = get_random_bytes(16)
 key = pad(key, AES.block_size)
 filename = input("file to encrypt\n>")
 print(filename)
-AESencryption(filename, key)
+AESFileencryption(filename, key)
 filename = input("file to decrypt\n>")
-AESdecryption('file.txt.enc', key)
+AESFiledecryption('file.txt.enc', key)
 
