@@ -104,7 +104,8 @@ if choix=='2':
     s.send(choix.encode())
     passwd = gen_xkcd()
     s.send(passwd.encode())
-    srv_socket = s.accept()
+    srvResponse = s.recv()
+    srvResponse.decode()
     print('Recevoir')
 else : 
     quit
