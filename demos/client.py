@@ -1,5 +1,5 @@
 import socket
-from demos.AES import AESFiledecryption, AESFileencryption, AESStringDecryption
+from AES import AESFiledecryption, AESFileencryption, AESStringDecryption, AESStringEncryption
 from exempleRSA import Generate_RSA_PBL
 import tqdm
 import os
@@ -19,7 +19,7 @@ BUFFER_SIZE = 4096
 
 s = socket.socket()
 host = "127.0.0.1"
-port = 5001
+port = 8080
 print(f"[+] Connecting to {host}:{port}")
 s.connect((host, port))
 print("[+] Connected to ", host)
@@ -52,11 +52,11 @@ cipher_rsa = PKCS1_OAEP.new(received)
 enc_session_key = cipher_rsa.encrypt(key)
 enc_session_key = str(enc_session_key)
 s.send(enc_session_key.encode())
-client_socket, address = s.accept()
 choix = input('Que voulez vous faire ?\n1-Envoyer un fichier\n2-Récupérer un fichier\n3-quit \n>')
-file_out = open("encrypted_data_new.bin", "wb")
+
 
 if choix=='1':
+    choix = AESStringEncryption(choix.encode('UTF-8'), key)
     s.send(choix.encode())
     filename = input("File to Transfer : \n>")
     
@@ -65,7 +65,9 @@ if choix=='1':
     filename = filename + '.enc'
     #envoyer infos fichier
     filesize_enc = os.path.getsize(filename)
-    s.send(f"{filename}{SEPARATOR}{filesize_enc}".encode()) 
+    fileInfo = f"{filename}{SEPARATOR}{filesize_enc}"
+    fileInfo = AESStringEncryption(fileInfo, key)
+    s.send(fileInfo.encode()) 
     
     #envoi fichier au serveur
     progress = tqdm.tqdm(range(filesize_enc), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
@@ -76,43 +78,55 @@ if choix=='1':
                 break
             s.sendall(bytes_read)
             progress.update(len(bytes_read))
+    f.close()
     #recevoir la clé xkcd
-            passwd = s.recv()
-            AESStringDecryption(passwd)
-            print("Votre mot de passe pour récupérer le fichier est " + passwd.decode())
-            s.close()
-            exit()
+    xkcdpass = s.recv()
+    AESStringDecryption(xkcdpass, key)
+    print("Votre mot de passe pour récupérer le fichier est " + xkcdpass.decode())
+    s.close()
+    exit()
 if choix=='2':
     s.send(choix.encode())
     passwd = input("Entrez le mot de passe du fichier \n>")
-    Encrypt_AES(passwd)
+    AESStringEncryption(passwd.encode('UTF-8'), key)
     s.send(passwd.encode())
+    
+    ack = s.recv().decode()
+    ack = AESStringDecryption(ack, key)
+    if ack != 'OK !':
+        s.close
+        quit() #oui oui si tu met le mauvais mot de passe tu te fait kik du programe. Charles te conseil de mettre le bon mot de passe et de ne pas etre un idiot ! ;) (c'est exactement ce qu'il pense)
+
     srv_response = s.recv()
-    srv_response.decode()
+    srv_response = srv_response.decode()
+    srv_response = AESStringDecryption(srv_response, key)
     if srv_response == "OK" :
+        #Recevoir la clé AES de déchiffrage
+        decrypt_key = s.recv().decode()
+        Decrypt_AES(key, decrypt_key)
         
-        filename, filesize = received.split(SEPARATOR)
+        fileInfo = s.recv().decode()
+        fileInfo = AESStringDecryption(fileInfo, key)
+        filename, filesize = fileInfo.split(SEPARATOR)
         filename = os.path.basename(filename)
         filesize = int(filesize)
         progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
         with open(filename, "wb") as f:
             while True:
-                bytes_read = client_socket.recv(filesize)
+                bytes_read = s.recv(BUFFER_SIZE)
                 if not bytes_read:
                     break
                 f.write(bytes_read)
                 progress.update(len(bytes_read))
-        client_socket.close()
+        f.close()
         s.close()
-        decrypt_key = s.recv()
-        Decrypt_AES(key, decrypt_key)
         AESFiledecryption(filename, decrypt_key)
         print("Reçu")
     else :
         print("Erreur")
-        quit
+        quit()
 else : 
-    quit
+    quit()
 
 
 

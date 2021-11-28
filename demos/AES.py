@@ -41,6 +41,7 @@ def AESFiledecryption(file,key):
             print('Decryption Error')
 
 def AESStringEncryption(string, key):
+    string = string.encode('utf-8')
     cipher_aes = AES.new(key, AES.MODE_EAX)
     nonce = cipher_aes.nonce
     ciphertext, tag = cipher_aes.encrypt_and_digest(string)
@@ -51,6 +52,7 @@ def AESStringDecryption(string, key):
     ciphertext, tag, nonce = string.split(SEPARATOR.encode('UTF-8'))
     cipher = AES.new(key,AES.MODE_EAX, nonce=nonce)
     data = cipher.decrypt_and_verify(ciphertext, tag)
+    data = data.decode()
     return data 
 
 #key =  input('key')

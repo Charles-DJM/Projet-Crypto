@@ -15,9 +15,9 @@ from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
 from xkcdpass import xkcd_password as xp
 from Crypto.Random import get_random_bytes
-from demos.xkcdpassExample import gen_xkcd
-from demos.AES import AESStringDecryption
-from demos.AES import AESStringEncryption
+from xkcdpassExample import gen_xkcd
+from AES import AESStringDecryption
+from AES import AESStringEncryption
 
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 8080
@@ -36,9 +36,10 @@ class ClientThread(threading.Thread):
         self.csocket = clientsocket
         print ("New connection added: ", clientAddress)
 
-    def run(self, clientAddress):
+    def run(self):
         print ("Connection from : ", clientAddress)
-        self.csocket.send(bytes(self.RSAPublicKey, 'UTF-8'))
+        #self.csocket.send(bytes(self.RSAPublicKey, 'UTF-8'))
+        self.csocket.send(self.RSAPublicKey)
         data = self.csocket.recv(2048)
         data = data.decode()
 
@@ -52,14 +53,19 @@ class ClientThread(threading.Thread):
         AESkeyfile.close()
 
         # Maintenant tout doit etre chiffré et déchiffré en AES
-        # On attend réponse du client 
-        respons = self.csocket.recv()
+        
+        # On attend réponse du client chiffré en AES
+        responsCrypted = self.csocket.recv()
+
+        # Décryptage de la réponse 
+        respons = AESStringDecryption(responsCrypted, AESkey)
         
 
         # Le serveur recoit le fichier envoyé par l'utilisateur
         if respons == "1" :
-            # D'abord recuperer taille du fichier 
-            received = self.csocket.recv(BUFFER_SIZE).decode()
+            # D'abord recuperer taille du fichier (crypté)
+            receivedCrypted = self.csocket.recv(BUFFER_SIZE).decode()
+            received = AESStringDecryption(receivedCrypted, AESkey)
             filename, filesize = received.split(SEPARATOR)
             filesize = int(filesize)
 
@@ -84,6 +90,7 @@ class ClientThread(threading.Thread):
             xkcdpassCrypted = AESStringEncryption(xkcdpass, AESkey)
             # Envoyer au client la clé
             self.csocket.send(xkcdpassCrypted, 'UTF-8')
+            self.csocket.close()
 
         # Le serveur envoie un fichier au client 
         elif respons == "2" :
@@ -97,24 +104,35 @@ class ClientThread(threading.Thread):
             with open("Projet-Crypto/demos/correspondence.csv", "r") as file: 
                 datafile = file.readlines()
             for line in datafile: 
-                id, fileAESkey, filecrypted, xkcdpassword = line.split(",")
+                id, fileAESkey, fileCryptedName, xkcdpassword = line.split(",")
                 if xkcdpassword + "/n" == xkcdpass :
+                    self.csocket.send('OK !'.encode('utf-8'))
                     with open( "Projet-Crypto/demos/" + fileAESkey, 'r') as aes :
                         AESkey = aes.readline() 
+                        # Envoi de la clé AES
                         while True:
                             bytes_read = f.read(BUFFER_SIZE)
                             if not bytes_read:
                                 break
                             self.csocket.sendall(bytes_read)
-                            
-                    with open(filecrypted, "rb") as f:
+                        
+                        # Envoie des infos du fichier 
+                        filesize_enc = os.path.getsize(fileCryptedName)
+                        fileInfo = f"{fileCryptedName}{SEPARATOR}{filesize_enc}"
+                        fileInfo = AESStringEncryption(fileInfo, AESkey)
+                        self.csocket.send(fileInfo.encode()) 
+                        
+                    with open(fileCryptedName, "rb") as f:
+                        # Envoi du fichier
                         while True:
                             bytes_read = f.read(BUFFER_SIZE)
                             if not bytes_read:
                                 break
                             self.csocket.sendall(bytes_read)
+                    self.csocket.close()
                 else :
                     self.csocket.send('Error')
+                    self.csocket.close()
         
         elif respons == "3" :
             self.csocket.close()
@@ -122,6 +140,7 @@ class ClientThread(threading.Thread):
         else :
             error = AESStringEncryption('Erreur de choix', AESkey)
             self.csocket.send(error)
+            self.csocket.close()
             
 
 
