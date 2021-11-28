@@ -10,6 +10,8 @@ from exempleRSA import Encrypt_AES, Decrypt_AES
 
 from xkcdpass import xkcd_password as xp
 from xkcdpassExample import gen_xkcd
+
+from AES import AESdecryption, AESencryption
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096
 
@@ -46,11 +48,11 @@ received = client_socket.recv(BUFFER_SIZE).decode()
     #préciser la taille du chiffrement au serveur/
     #envois du fichier/
 #si on récupère le fichier
-    #envoyer une clef xkcdpass au serveur
-    #attendre la réponse du serveur pour la confirmation de la clef xkcdpass
+    #envoyer une clef xkcdpass au serveur/
+    #attendre la réponse du serveur pour la confirmation de la clef xkcdpass/
     #si c ok
-        #recevoir la taille et le nom du fichier
-        #boucle de reception de fichier (ref serverreceiver ligne 22)
+        #recevoir la taille et le nom du fichier/
+        #boucle de reception de fichier (ref serverreceiver ligne 22)/
         #réception de la clef aes
         #déchiffrement du fichier
     #si c pas bon zob
@@ -102,16 +104,40 @@ if choix=='1':
     print('Envoyer')
 if choix=='2':
     s.send(choix.encode())
-    gen_xkcd()
+    passwd = gen_xkcd()
+    Encrypt_AES(passwd)
     s.send(passwd.encode())
-    srv_socket = s.accept()
-    print('Recevoir')
+    srv_response = s.recv()
+    srv_response.decode()
+    if srv_response == "OK" :
+        
+        filename, filesize = received.split(SEPARATOR)
+        filename = os.path.basename(filename)
+        filesize = int(filesize)
+        progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+        with open(filename, "wb") as f:
+            while True:
+                bytes_read = client_socket.recv(filesize)
+                if not bytes_read:
+                    break
+                f.write(bytes_read)
+                progress.update(len(bytes_read))
+        client_socket.close()
+        s.close()
+        decrypt_key = s.recv()
+        Decrypt_AES(key, decrypt_key)
+        AESdecryption(filename, decrypt_key)
+        print("Reçu")
+    else :
+        print("Erreur")
+        quit
 else : 
     quit
 
 
 
 #**************************************************
+
 
 
 

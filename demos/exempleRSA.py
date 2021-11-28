@@ -53,7 +53,7 @@ cipher_rsa = PKCS1_OAEP.new(private_key)
 #session_key = cipher_rsa.decrypt(enc_session_key)
 
 # Decrypt the data with the AES session key
-def Decrypt_AES():
+def Decrypt_AES(session_key, data):
    cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
    data = cipher_aes.decrypt_and_verify(ciphertext, tag)
    print(data.decode("utf-8"))

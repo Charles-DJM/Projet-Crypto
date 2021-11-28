@@ -9,3 +9,4 @@ def gen_xkcd():
     # create a password with the acrostic "face"
     passwd = xp.generate_xkcdpassword(mywords)
     print(passwd)
+    return passwd
