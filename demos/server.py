@@ -42,7 +42,7 @@ class ClientThread(threading.Thread):
         msg = msg.decode('utf-8')
 
         # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
-        AESkey = open( + "aes_key.txt", "a")
+        AESkey = open( id + "_" + "aes_key.txt", "a")
         AESkey.write(msg)
         AESkey.close()
 
@@ -51,10 +51,10 @@ class ClientThread(threading.Thread):
         respons = self.csocket.recv()
 
         if respons == "1" :
+            # D'abord recuperer taille du fichier 
             received = self.csocket.recv(BUFFER_SIZE).decode()
             filename, filesize = received.split(SEPARATOR)
-
-
+            
 
        
 # Si envoyer (client):
