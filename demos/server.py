@@ -83,7 +83,7 @@ class ClientThread(threading.Thread):
 
 
         # Le serveur envoie un fichier au client 
-        if respons == "2" :
+        elif respons == "2" :
             # On attend une clef xkcdpass
             xkcdpass = self.csocket.recv().decode()
 
@@ -110,17 +110,11 @@ class ClientThread(threading.Thread):
                 else :
                     self.csocket.send('Error')
         
-        if respons == "3" :
-             
+        elif respons == "3" :
+            self.csocket.close()
 
-
-# Si recevoir(client):
-    # On attend une clef xkcdpass 
-    # Si elle corespond :
-        #  On envoie le fichier avec la correspondance de la clef AES
-    # Si ca correspond pas :
-        # Vas niker TA mèreah !
-
+        else :
+            self.csocket.send('Error')
 
 
 #https://riptutorial.com/python/example/27169/server-side-implementation
