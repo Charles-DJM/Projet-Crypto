@@ -2,3 +2,5 @@
 *.bin
 *.pem
 *.pem
+demos/__pycache__/exempleRSA.cpython-38.pyc
+demos/__pycache__/xkcdpassExample.cpython-38.pyc
