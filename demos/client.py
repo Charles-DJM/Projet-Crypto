@@ -102,7 +102,7 @@ if choix=='1':
     print('Envoyer')
 if choix=='2':
     s.send(choix.encode())
-    gen_xkcd()
+    passwd = gen_xkcd()
     s.send(passwd.encode())
     srv_socket = s.accept()
     print('Recevoir')
