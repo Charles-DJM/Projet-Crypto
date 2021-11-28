@@ -1,4 +1,5 @@
 import socket
+from demos.AES import AESFiledecryption, AESFileencryption, AESStringDecryption
 from exempleRSA import Generate_RSA_PBL
 import tqdm
 import os
@@ -24,19 +25,7 @@ s.connect((host, port))
 print("[+] Connected to ", host)
 
 #recevoir une clef publique rsa
-
-client_socket, address = s.accept()
-received = client_socket.recv(BUFFER_SIZE).decode()
-#file = open('RSApublicKey.txt','a')
-#file.write(received)
-#file.close
-
-#****************************************************
-
-
-
-
-
+received = s.recv(BUFFER_SIZE).decode()
 
 #creer une clef aes  /
 #la crypté en rsa via la clef publique du serveur/
@@ -72,7 +61,7 @@ if choix=='1':
     filename = input("File to Transfer : \n>")
     
     #chiffrer le fichier 
-    AESencryption(filename, key)
+    AESFileencryption(filename, key)
     filename = filename + '.enc'
     #envoyer infos fichier
     filesize_enc = os.path.getsize(filename)
@@ -117,7 +106,7 @@ if choix=='2':
         s.close()
         decrypt_key = s.recv()
         Decrypt_AES(key, decrypt_key)
-        AESdecryption(filename, decrypt_key)
+        AESFiledecryption(filename, decrypt_key)
         print("Reçu")
     else :
         print("Erreur")
