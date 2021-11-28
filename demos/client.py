@@ -87,6 +87,9 @@ if choix=='1':
             s.sendall(bytes_read)
             progress.update(len(bytes_read))
     #recevoir la clé xkcd
+            passwd = s.recv()
+            Decrypt_AES(passwd)
+            print(passwd)
 if choix=='2':
     s.send(choix.encode())
     passwd = input("Entrez le mot de passe du fichier \n>")
