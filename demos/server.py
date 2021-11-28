@@ -25,7 +25,8 @@ class ClientThread(threading.Thread):
     RSAprivateKey = RSAKey.export_key()
     RSAPublicKey = RSAKey.public_key().export_key()
 
-    def __init__(self,clientAddress,clientsocket):
+    def __init__(self,clientAddress,clientsocket, id):
+        self.id = id
         threading.Thread.__init__(self)
         self.csocket = clientsocket
         print ("New connection added: ", clientAddress)
@@ -79,9 +80,11 @@ server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((SERVER_HOST, SERVER_PORT))
 print("Server started")
 print("Waiting for client request..")
+id = 0
 while True:
     server.listen(1)
     clientsock, clientAddress = server.accept()
-    newthread = ClientThread(clientAddress, clientsock)
+    newthread = ClientThread(clientAddress, clientsock, id)
+    id = id + 1
     newthread.start()
     
