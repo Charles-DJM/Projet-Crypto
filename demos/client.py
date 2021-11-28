@@ -11,7 +11,8 @@ from exempleRSA import Encrypt_AES, Decrypt_AES
 from xkcdpass import xkcd_password as xp
 from xkcdpassExample import gen_xkcd
 
-from AES import AESStringDecryption, AESdecryption, AESencryption
+import AES
+#from AES import AESStringDecryption, AESdecryption, AESencryption
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096
 
