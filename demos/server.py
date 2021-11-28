@@ -88,11 +88,30 @@ class ClientThread(threading.Thread):
             xkcdpass = self.csocket.recv().decode()
 
             # Vérifier la correspondance entre la clé xkcdpass et le nom du fichier
-            
-
-            # Si elle corespond :
-                #  On envoie le fichier avec la correspondance de la clef AES
-            if correspond = True : 
+            with open("Projet-Crypto/demos/correspondence.csv", "r") as file: 
+                datafile = file.readlines()
+            for line in datafile: 
+                id, fileAESkey, filecrypted, xkcdpassword = line.split(",")
+                if xkcdpassword + "/n" == xkcdpass :
+                    with open( "Projet-Crypto/demos/" + fileAESkey, 'r') as aes :
+                        AESkey = aes.readline() 
+                        while True:
+                            bytes_read = f.read(BUFFER_SIZE)
+                            if not bytes_read:
+                                break
+                            self.csocket.sendall(bytes_read)
+                            
+                    with open(filecrypted, "rb") as f:
+                        while True:
+                            bytes_read = f.read(BUFFER_SIZE)
+                            if not bytes_read:
+                                break
+                            self.csocket.sendall(bytes_read)
+                else :
+                    self.csocket.send('Error')
+        
+        if respons == "3" :
+             
 
 
 # Si recevoir(client):
