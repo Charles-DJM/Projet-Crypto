@@ -48,10 +48,16 @@ received = s.recv(BUFFER_SIZE).decode()
     #si c pas bon zob
 
 key = get_random_bytes(16)
+
+received = RSA.import_key(received)
+
 cipher_rsa = PKCS1_OAEP.new(received)
+
 enc_session_key = cipher_rsa.encrypt(key)
-enc_session_key = str(enc_session_key)
-s.send(enc_session_key.encode())
+
+#enc_session_key = str(enc_session_key)
+s.send(enc_session_key)
+
 choix = input('Que voulez vous faire ?\n1-Envoyer un fichier\n2-Récupérer un fichier\n3-quit \n>')
 
 

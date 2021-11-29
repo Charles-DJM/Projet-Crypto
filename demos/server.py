@@ -11,7 +11,7 @@ import os
 import csv
 import socket
 import threading
-from Crypto.Cipher import AES
+from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from xkcdpass import xkcd_password as xp
 from Crypto.Random import get_random_bytes
@@ -40,22 +40,24 @@ class ClientThread(threading.Thread):
         print ("Connection from : ", clientAddress)
         #self.csocket.send(bytes(self.RSAPublicKey, 'UTF-8'))
         self.csocket.send(self.RSAPublicKey)
-        data = self.csocket.recv(2048)
-        data = data.decode()
+        data = self.csocket.recv(4096)
+        #data = data.decode('utf-8')
+    
 
         # Déchiffrer msg avec la clefs privé RSA
-        AESkey = self.RSAprivateKey.decrypt(data)
-        AESkey = AESkey.decode('utf-8')
+        pkey = RSA.import_key(self.RSAprivateKey)
+        cipherRSA = PKCS1_OAEP.new(pkey)
+        AESkey = cipherRSA.decrypt(data)
 
         # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
-        AESkeyfile = open(self.id + "_" + "aes_key.txt", "a")
+        AESkeyfile = open(str(self.id) + "_" + "aes_key.txt", "ab")
         AESkeyfile.write(AESkey)
         AESkeyfile.close()
 
         # Maintenant tout doit etre chiffré et déchiffré en AES
         
         # On attend réponse du client chiffré en AES
-        responsCrypted = self.csocket.recv()
+        responsCrypted = self.csocket.recv(BUFFER_SIZE)
 
         # Décryptage de la réponse 
         respons = AESStringDecryption(responsCrypted, AESkey)
@@ -154,7 +156,7 @@ print("Server started")
 print("Waiting for client request..")
 id = 0
 while True:
-    server.listen(1)
+    server.listen(99)
     clientsock, clientAddress = server.accept()
     newthread = ClientThread(clientAddress, clientsock, id)
     id = id + 1
