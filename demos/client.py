@@ -62,8 +62,8 @@ choix = input('Que voulez vous faire ?\n1-Envoyer un fichier\n2-Récupérer un f
 
 
 if choix=='1':
-    choix = AESStringEncryption(choix.encode('UTF-8'), key)
-    s.send(choix.encode())
+    choix = AESStringEncryption(str(choix), key)
+    s.send(choix)
     filename = input("File to Transfer : \n>")
     
     #chiffrer le fichier 
@@ -73,45 +73,47 @@ if choix=='1':
     filesize_enc = os.path.getsize(filename)
     fileInfo = f"{filename}{SEPARATOR}{filesize_enc}"
     fileInfo = AESStringEncryption(fileInfo, key)
-    s.send(fileInfo.encode()) 
+    s.send(fileInfo)
     
     #envoi fichier au serveur
     progress = tqdm.tqdm(range(filesize_enc), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
     with open(filename, "rb") as f:
         while True:
+            print('vier')
             bytes_read = f.read(BUFFER_SIZE)
+            print(bytes_read)
             if not bytes_read:
                 break
             s.sendall(bytes_read)
             progress.update(len(bytes_read))
     f.close()
     #recevoir la clé xkcd
-    xkcdpass = s.recv()
+    xkcdpass = s.recv(BUFFER_SIZE * 2)
     AESStringDecryption(xkcdpass, key)
-    print("Votre mot de passe pour récupérer le fichier est " + xkcdpass.decode())
+    print("Votre mot de passe pour récupérer le fichier est " + xkcdpass)
     s.close()
     exit()
 if choix=='2':
-    s.send(choix.encode())
+    s.send(choix)
     passwd = input("Entrez le mot de passe du fichier \n>")
-    AESStringEncryption(passwd.encode('UTF-8'), key)
-    s.send(passwd.encode())
+    AESStringEncryption(passwd, key)
+    s.send(passwd)
     
-    ack = s.recv().decode()
+    ack = s.recv()
     ack = AESStringDecryption(ack, key)
     if ack != 'OK !':
         s.close
         quit() #oui oui si tu met le mauvais mot de passe tu te fait kik du programe. Charles te conseil de mettre le bon mot de passe et de ne pas etre un idiot ! ;) (c'est exactement ce qu'il pense)
 
     srv_response = s.recv()
-    srv_response = srv_response.decode()
+    srv_response = srv_response
     srv_response = AESStringDecryption(srv_response, key)
     if srv_response == "OK" :
         #Recevoir la clé AES de déchiffrage
-        decrypt_key = s.recv().decode()
+        decrypt_key = s.recv()
         Decrypt_AES(key, decrypt_key)
         
-        fileInfo = s.recv().decode()
+        fileInfo = s.recv()
         fileInfo = AESStringDecryption(fileInfo, key)
         filename, filesize = fileInfo.split(SEPARATOR)
         filename = os.path.basename(filename)

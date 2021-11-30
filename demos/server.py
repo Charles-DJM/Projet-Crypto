@@ -66,18 +66,20 @@ class ClientThread(threading.Thread):
         # Le serveur recoit le fichier envoyé par l'utilisateur
         if respons == "1" :
             # D'abord recuperer taille du fichier (crypté)
-            receivedCrypted = self.csocket.recv(BUFFER_SIZE).decode()
+            receivedCrypted = self.csocket.recv(BUFFER_SIZE)
             received = AESStringDecryption(receivedCrypted, AESkey)
             filename, filesize = received.split(SEPARATOR)
             filesize = int(filesize)
+            filename = filename + 'serv' 
 
             # Récupération du fichier
             with open(filename, "wb") as f:
                 while True:
                     bytes_read = self.csocket.recv(BUFFER_SIZE)
+                    test = f.write(bytes_read)
+                    print(test)
                     if not bytes_read:
                         break
-                    f.write(bytes_read)
             f.close()
 
             # Générer une clef avec xkcdpass la correspondance au fichier 
@@ -86,18 +88,18 @@ class ClientThread(threading.Thread):
             # Enregistrement de la clé xkcdpass dans un fichier pour établir la correspondance (le mieux c'est en db)
             with open('correspondence.csv', "a", newline= '', encoding='utf-8') as filecsv :
                 writer =csv.writer(filecsv)
-                writer.writerow([self.id, self.id + "_" + "aes_key.txt", filename, xkcdpass])
+                writer.writerow([str(self.id), str(self.id) + "_" + "aes_key.txt", filename, xkcdpass])
 
             # Crypatge de la clé en AES
             xkcdpassCrypted = AESStringEncryption(xkcdpass, AESkey)
             # Envoyer au client la clé
-            self.csocket.send(xkcdpassCrypted, 'UTF-8')
+            self.csocket.send(xkcdpassCrypted)
             self.csocket.close()
 
         # Le serveur envoie un fichier au client 
         elif respons == "2" :
             # On attend une clef xkcdpass crypté en AES
-            xkcdpassCrypted = self.csocket.recv().decode()
+            xkcdpassCrypted = self.csocket.recv()
 
             # Décryptage de xkcdpass avec la clé AES
             xkcdpass = AESStringDecryption(xkcdpassCrypted, AESkey)
@@ -122,7 +124,7 @@ class ClientThread(threading.Thread):
                         filesize_enc = os.path.getsize(fileCryptedName)
                         fileInfo = f"{fileCryptedName}{SEPARATOR}{filesize_enc}"
                         fileInfo = AESStringEncryption(fileInfo, AESkey)
-                        self.csocket.send(fileInfo.encode()) 
+                        self.csocket.send(fileInfo) 
                         
                     with open(fileCryptedName, "rb") as f:
                         # Envoi du fichier
