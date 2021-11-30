@@ -74,12 +74,13 @@ if choix=='1':
     s.close()
     exit()
 if choix=='2':
+    choix = AESStringEncryption(str(choix), key)
     s.send(choix)
     passwd = input("Entrez le mot de passe du fichier \n>")
-    AESStringEncryption(passwd, key)
+    passwd = AESStringEncryption(passwd, key)
     s.send(passwd)
     
-    ack = s.recv()
+    ack = s.recv(BUFFER_SIZE)
     ack = AESStringDecryption(ack, key)
     if ack != 'OK !':
         s.close
