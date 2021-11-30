@@ -73,14 +73,18 @@ class ClientThread(threading.Thread):
 
             # Récupération du fichier
             with open(filename, "wb") as f:
+                total_bytes_read = 0
                 while True:
                     bytes_read = self.csocket.recv(BUFFER_SIZE)
-                    f.write(bytes_read)
-                    if not bytes_read:
+                    total_bytes_read = f.write(bytes_read)
+                    print(bytes_read)
+                    if not bytes_read or total_bytes_read == filesize:
+                        print('flush')
                         f.flush()
                         break
 
             # Générer une clef avec xkcdpass la correspondance au fichier 
+            print('xkcd')
             xkcdpass = gen_xkcd()
 
             # Enregistrement de la clé xkcdpass dans un fichier pour établir la correspondance (le mieux c'est en db)

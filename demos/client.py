@@ -69,8 +69,8 @@ if choix=='1':
     f.close()
     #recevoir la clé xkcd
     xkcdpass = s.recv(BUFFER_SIZE * 2)
-    AESStringDecryption(xkcdpass, key)
-    print("Votre mot de passe pour récupérer le fichier est " + xkcdpass)
+    xkcdpass = AESStringDecryption(xkcdpass, key)
+    print("Votre mot de passe pour récupérer le fichier est " + str(xkcdpass))
     s.close()
     exit()
 if choix=='2':
