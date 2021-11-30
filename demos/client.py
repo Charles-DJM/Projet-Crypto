@@ -1,12 +1,13 @@
 import socket
 from AES import AESFiledecryption, AESFileencryption, AESStringDecryption, AESStringEncryption
+from AES import AESBytesDecryption
 from exempleRSA import Generate_RSA_PBL
 import tqdm
 import os
 
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
-from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Cipher import AES as AESENCRYPTION, PKCS1_OAEP
 from exempleRSA import Encrypt_AES, Decrypt_AES
 
 from xkcdpass import xkcd_password as xp
@@ -82,41 +83,34 @@ if choix=='2':
     
     ack = s.recv(BUFFER_SIZE)
     ack = AESStringDecryption(ack, key)
-    if ack != 'OK !':
-        s.close
-        quit() #oui oui si tu met le mauvais mot de passe tu te fait kik du programe. Charles te conseil de mettre le bon mot de passe et de ne pas etre un idiot ! ;) (c'est exactement ce qu'il pense)
+    if ack == 'Error':
+       print('Error !')
+       s.close
+       quit() #oui oui si tu met le mauvais mot de passe tu te fait kik du programe. Charles te conseil de mettre le bon mot de passe et de ne pas etre un idiot ! ;) (c'est exactement ce qu'il pense)
 
-    srv_response = s.recv()
-    srv_response = srv_response
-    srv_response = AESStringDecryption(srv_response, key)
-    if srv_response == "OK" :
-        #Recevoir la clé AES de déchiffrage
-        decrypt_key = s.recv()
-        Decrypt_AES(key, decrypt_key)
-        
-        fileInfo = s.recv()
-        fileInfo = AESStringDecryption(fileInfo, key)
-        filename, filesize = fileInfo.split(SEPARATOR)
-        filename = os.path.basename(filename)
-        filesize = int(filesize)
-        progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-        with open(filename, "wb") as f:
-            while True:
-                bytes_read = s.recv(BUFFER_SIZE)
-                if not bytes_read:
-                    break
-                f.write(bytes_read)
-                progress.update(len(bytes_read))
-        f.close()
-        s.close()
-        AESFiledecryption(filename, decrypt_key)
-        print("Reçu")
-    else :
-        print("Erreur")
-        quit()
+    
+    #Recevoir la clé AES de déchiffrage
+    decrypt_key = s.recv(BUFFER_SIZE)
+    
+    decrypt_key = AESBytesDecryption(decrypt_key,key)
+    print(decrypt_key)
+    fileInfo = s.recv(BUFFER_SIZE)
+    fileInfo = AESStringDecryption(fileInfo, key)
+    filename, filesize = fileInfo.split(SEPARATOR)
+    filename = os.path.basename(filename)
+    filesize = int(filesize)
+    progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    with open(filename, "wb") as f:
+        while True:
+            bytes_read = s.recv(BUFFER_SIZE)
+            if not bytes_read:
+                break
+            f.write(bytes_read)
+            progress.update(len(bytes_read))
+    f.close()
+    s.close()
+    AESFiledecryption(filename, decrypt_key)
+    print("Reçu")
+    
 else : 
     quit()
-
-
-
-#**************************************************

@@ -18,6 +18,7 @@ from Crypto.Random import get_random_bytes
 from xkcdpassExample import gen_xkcd
 from AES import AESStringDecryption
 from AES import AESStringEncryption
+from AES import AESBytesEncryption
 
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 8080
@@ -76,10 +77,9 @@ class ClientThread(threading.Thread):
                 total_bytes_read = 0
                 while True:
                     bytes_read = self.csocket.recv(BUFFER_SIZE)
-                    total_bytes_read = f.write(bytes_read)
+                    total_bytes_read = total_bytes_read + f.write(bytes_read)
                     print(bytes_read)
                     if not bytes_read or total_bytes_read == filesize:
-                        print('flush')
                         f.flush()
                         break
 
@@ -109,24 +109,27 @@ class ClientThread(threading.Thread):
             # Vérifier la correspondance entre la clé xkcdpass et le nom du fichier
             with open("correspondence.csv", "r") as file: 
                 datafile = file.readlines()
-            for line in datafile: 
+            for line in datafile:
+                foundFlag = False
+                if foundFlag == True:
+                    break 
                 id, fileAESkey, fileCryptedName, xkcdpassword = line.split(",")
-                if xkcdpassword + "/n" == xkcdpass :
-                    self.csocket.send('OK !'.encode('utf-8'))
-                    with open( "Projet-Crypto/demos/" + fileAESkey, 'r') as aes :
-                        AESkey = aes.readline() 
+
+                if xkcdpassword.strip() == xkcdpass.strip() :
+                    foundFlag = True
+                    self.csocket.send(AESStringEncryption('OK !', AESkey))
+                    with open(fileAESkey, 'rb') as aes :
                         # Envoi de la clé AES
-                        while True:
-                            bytes_read = f.read(BUFFER_SIZE)
-                            if not bytes_read:
-                                break
-                            self.csocket.sendall(bytes_read)
+                        keyToSend = aes.readline()
+                        print(AESkey)
+                        keyToSend = AESBytesEncryption(keyToSend, AESkey)
+                        self.csocket.send(keyToSend)
                         
-                        # Envoie des infos du fichier 
-                        filesize_enc = os.path.getsize(fileCryptedName)
-                        fileInfo = f"{fileCryptedName}{SEPARATOR}{filesize_enc}"
-                        fileInfo = AESStringEncryption(fileInfo, AESkey)
-                        self.csocket.send(fileInfo) 
+                    # Envoie des infos du fichier 
+                    filesize_enc = os.path.getsize(fileCryptedName)
+                    fileInfo = f"{fileCryptedName}{SEPARATOR}{filesize_enc}"
+                    fileInfo = AESStringEncryption(fileInfo, AESkey)
+                    self.csocket.send(fileInfo) 
                         
                     with open(fileCryptedName, "rb") as f:
                         # Envoi du fichier
@@ -136,9 +139,9 @@ class ClientThread(threading.Thread):
                                 break
                             self.csocket.sendall(bytes_read)
                     self.csocket.close()
-                else :
-                    self.csocket.send('Error'.encode('utf-8'))
-                    self.csocket.close()
+            if foundFlag == False :
+                self.csocket.send(AESStringEncryption('Error', AESkey))
+                self.csocket.close()
         
         elif respons == "3" :
             self.csocket.close()

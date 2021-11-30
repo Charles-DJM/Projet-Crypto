@@ -48,11 +48,24 @@ def AESStringEncryption(string, key):
     rstring = ciphertext + SEPARATOR.encode('UTF-8') + tag + SEPARATOR.encode('UTF-8') + nonce
     return rstring
 
+def AESBytesEncryption(string, key):
+    cipher_aes = AES.new(key, AES.MODE_EAX)
+    nonce = cipher_aes.nonce
+    ciphertext, tag = cipher_aes.encrypt_and_digest(string)
+    rstring = ciphertext + SEPARATOR.encode('UTF-8') + tag + SEPARATOR.encode('UTF-8') + nonce
+    return rstring
+
 def AESStringDecryption(string, key):
     ciphertext, tag, nonce = string.split(SEPARATOR.encode('UTF-8'))
     cipher = AES.new(key,AES.MODE_EAX, nonce=nonce)
     data = cipher.decrypt_and_verify(ciphertext, tag)
     data = data.decode()
+    return data 
+
+def AESBytesDecryption(string, key):
+    ciphertext, tag, nonce = string.split(SEPARATOR.encode('UTF-8'))
+    cipher = AES.new(key,AES.MODE_EAX, nonce=nonce)
+    data = cipher.decrypt_and_verify(ciphertext, tag)
     return data 
 
 #key =  input('key')
