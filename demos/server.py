@@ -41,17 +41,16 @@ class ClientThread(threading.Thread):
         #self.csocket.send(bytes(self.RSAPublicKey, 'UTF-8'))
         self.csocket.send(self.RSAPublicKey)
         data = self.csocket.recv(4096)
-        #data = data.decode('utf-8')
-    
+        
 
         # Déchiffrer msg avec la clefs privé RSA
         pkey = RSA.import_key(self.RSAprivateKey)
         cipherRSA = PKCS1_OAEP.new(pkey)
         AESkey = cipherRSA.decrypt(data)
-
+            
         # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
         AESkeyfile = open(str(self.id) + "_" + "aes_key.txt", "ab")
-        AESkeyfile.write(AESkey)
+        test = AESkeyfile.write(AESkey)
         AESkeyfile.close()
 
         # Maintenant tout doit etre chiffré et déchiffré en AES
@@ -76,11 +75,10 @@ class ClientThread(threading.Thread):
             with open(filename, "wb") as f:
                 while True:
                     bytes_read = self.csocket.recv(BUFFER_SIZE)
-                    test = f.write(bytes_read)
-                    print(test)
+                    f.write(bytes_read)
                     if not bytes_read:
+                        f.flush()
                         break
-            f.close()
 
             # Générer une clef avec xkcdpass la correspondance au fichier 
             xkcdpass = gen_xkcd()

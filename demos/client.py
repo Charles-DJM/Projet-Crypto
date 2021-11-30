@@ -27,26 +27,6 @@ print("[+] Connected to ", host)
 #recevoir une clef publique rsa
 received = s.recv(BUFFER_SIZE).decode()
 
-#creer une clef aes  /
-#la crypté en rsa via la clef publique du serveur/
-#l'envoyer au serveur/
-#attendre que le serveur confirme sa disponibilité/
-#choix de l'utilisateur/
-#l'envoyer au serveur/
-#si on envois on doit le chiffré en aes/
-    #se référer a la boucle ligne 20 dans clientsender.py/
-    #préciser la taille du chiffrement au serveur/
-    #envois du fichier/
-#si on récupère le fichier
-    #envoyer une clef xkcdpass au serveur/
-    #attendre la réponse du serveur pour la confirmation de la clef xkcdpass/
-    #si c ok
-        #recevoir la taille et le nom du fichier/
-        #boucle de reception de fichier (ref serverreceiver ligne 22)/
-        #réception de la clef aes
-        #déchiffrement du fichier
-    #si c pas bon zob
-
 key = get_random_bytes(16)
 
 received = RSA.import_key(received)
