@@ -50,7 +50,7 @@ class ClientThread(threading.Thread):
         AESkey = cipherRSA.decrypt(data)
             
         # Sauvegarder la clef AES dans un fichier (logiquement on fait ca en db)
-        AESkeyfile = open(str(self.id) + "_" + "aes_key.txt", "ab")
+        AESkeyfile = open(str(self.id) + "_" + "aes_key.txt", "wb")
         test = AESkeyfile.write(AESkey)
         AESkeyfile.close()
 
