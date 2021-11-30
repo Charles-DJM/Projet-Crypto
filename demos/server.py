@@ -78,13 +78,11 @@ class ClientThread(threading.Thread):
                 while True:
                     bytes_read = self.csocket.recv(BUFFER_SIZE)
                     total_bytes_read = total_bytes_read + f.write(bytes_read)
-                    print(bytes_read)
                     if not bytes_read or total_bytes_read == filesize:
                         f.flush()
                         break
 
             # Générer une clef avec xkcdpass la correspondance au fichier 
-            print('xkcd')
             xkcdpass = gen_xkcd()
 
             # Enregistrement de la clé xkcdpass dans un fichier pour établir la correspondance (le mieux c'est en db)
@@ -121,7 +119,6 @@ class ClientThread(threading.Thread):
                     with open(fileAESkey, 'rb') as aes :
                         # Envoi de la clé AES
                         keyToSend = aes.readline()
-                        print(AESkey)
                         keyToSend = AESBytesEncryption(keyToSend, AESkey)
                         self.csocket.send(keyToSend)
                         

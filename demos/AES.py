@@ -33,7 +33,7 @@ def AESFiledecryption(file,key):
             cipher = AES.new(key,AES.MODE_CFB,iv)
             decrypted = cipher.decrypt(ciphertext)
             decrypted = unpad(decrypted,AES.block_size)
-            new_file = input(f'Entrez le nom du fichier\n>')
+            new_file = input(f'\nEnter the new file name\n>')
             with open(new_file, 'wb') as data:
                 data.write(decrypted)
             data.close()
@@ -85,4 +85,3 @@ def AESBytesDecryption(string, key):
 #print('\n')
 #plain = AESStringDecryption(ciphertext, key)
 #print(plain.decode())
-

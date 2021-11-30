@@ -18,9 +18,11 @@ BUFFER_SIZE = 4096
 s = socket.socket()
 host = "127.0.0.1"
 port = 8080
-print(f"[+] Connecting to {host}:{port}")
+
+
 s.connect((host, port))
-print("[+] Connected to ", host)
+
+
 
 #recevoir une clef publique rsa
 received = s.recv(BUFFER_SIZE).decode()
@@ -36,7 +38,7 @@ enc_session_key = cipher_rsa.encrypt(key)
 #enc_session_key = str(enc_session_key)
 s.send(enc_session_key)
 
-choix = input('Que voulez vous faire ?\n1-Envoyer un fichier\n2-Récupérer un fichier\n3-quit \n>')
+choix = input('What would you like to do ?\n1-Upload file\n2-Download file\n3-quit \n>')
 
 
 if choix=='1':
@@ -57,9 +59,9 @@ if choix=='1':
     progress = tqdm.tqdm(range(filesize_enc), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
     with open(filename, "rb") as f:
         while True:
-            print('vier')
+
             bytes_read = f.read(BUFFER_SIZE)
-            print(bytes_read)
+
             if not bytes_read:
                 break
             s.sendall(bytes_read)
@@ -68,13 +70,13 @@ if choix=='1':
     #recevoir la clé xkcd
     xkcdpass = s.recv(BUFFER_SIZE * 2)
     xkcdpass = AESStringDecryption(xkcdpass, key)
-    print("Votre mot de passe pour récupérer le fichier est " + str(xkcdpass))
+    print("\nYour password is :\n" + str(xkcdpass) + "\n")
     s.close()
     exit()
 if choix=='2':
     choix = AESStringEncryption(str(choix), key)
     s.send(choix)
-    passwd = input("Entrez le mot de passe du fichier \n>")
+    passwd = input("Enter your file password :\n>")
     passwd = AESStringEncryption(passwd, key)
     s.send(passwd)
     
@@ -107,7 +109,7 @@ if choix=='2':
     f.close()
     s.close()
     AESFiledecryption(filename, decrypt_key)
-    print("Reçu")
+
     
 else : 
     quit()
